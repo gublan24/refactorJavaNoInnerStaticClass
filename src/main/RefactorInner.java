@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class RefactorInner {
 
 	public static void main(String[] args) {
-		String dir = "/home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_copy/com/sleepycat/bind/serial";
+		String dir = "/home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_copy/com/sleepycat/";
 		String outDir = "" + new File(".").getAbsolutePath() + "/RefactorInner_output/";
 		if (args.length > 0)
 			dir = args[0];
@@ -36,6 +36,8 @@ public class RefactorInner {
 		try {
 			
 			BufferedReader buffReader = new BufferedReader(new FileReader(file));
+			//TODO BufferedWriter writeFilesHavingStatic
+			//TODO BuffereWriter log
 			
 			String line = "";
 			boolean ecounterStatic = false;
@@ -75,7 +77,6 @@ public class RefactorInner {
 					else 
 					{
 						System.out.println(line); // do nothing 
-
 					}
 				}
 			} 
