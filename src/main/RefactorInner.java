@@ -20,17 +20,36 @@ public class RefactorInner {
 		if (args.length > 1)
 			outDir = args[1];
 
-		ArrayList<String> fileNames = getAllFilesInDirectory(dir);
-		if (fileNames.size() > 0) {
-			for (String file : fileNames) {
-				writeFilesWithCommentedInnerStaticClasses(file, outDir);
+		
+		BufferedWriter logFile = null;
+		try {
+			logFile = new BufferedWriter(new FileWriter("log.txt",true));
+			logFile.append("---------------------------------------------------------"+"\n");
+			
+			ArrayList<String> fileNames = getAllFilesInDirectory(dir);
+			if (fileNames.size() > 0) {
+				for (String file : fileNames) {
+					writeFilesWithCommentedInnerStaticClasses(file, outDir, logFile);
 
+				}
 			}
+			
+			logFile.close();
+			
+			
+			
+			
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		
 
 	}
 
-	private static void writeFilesWithCommentedInnerStaticClasses(String file, String outDir) {
+	private static void writeFilesWithCommentedInnerStaticClasses(String file, String outDir, BufferedWriter logFile) {
 		
 		
 		try {
@@ -40,11 +59,7 @@ public class RefactorInner {
 			File directory = new File(outDir);
 	    if (! directory.exists()){
 	        directory.mkdir();
-	        // If you require it to make the entire directory path including parents,
-	        // use directory.mkdirs(); here instead.
-	    }
-			//TODO BuffereWriter log
-			
+	    }			
 			String line = "";
 			boolean ecounterStatic = false;
 			int open_bracket_count = 0;
@@ -52,8 +67,10 @@ public class RefactorInner {
 
 			try 
 			{
-				BufferedWriter javaFile = new BufferedWriter(new FileWriter(outDir+inputFile.getName()));//TODO BufferedWriter writeFilesHavingStatic
-				System.out.println(outDir+inputFile.getName());
+				String outputFullFileName = outDir+inputFile.getName();
+				BufferedWriter javaFile = new BufferedWriter(new FileWriter(outputFullFileName));//TODO BufferedWriter writeFilesHavingStatic
+				System.out.println(outputFullFileName);
+	
 
 				while((line=buffReader.readLine()) != null)
 				{
@@ -68,6 +85,8 @@ public class RefactorInner {
 						//System.out.println("//"+line);
 						javaFile.write("// START_OF_STATIC_CLASS \n");
 						javaFile.write("//"+line+"\n");
+						logFile.append(""+file + ">>"+outputFullFileName +"\n");
+				
 
 						
 					} else if (ecounterStatic)
@@ -102,6 +121,8 @@ public class RefactorInner {
 				
 				javaFile.flush();
 				javaFile.close();
+				logFile.flush();
+		
 			
 			} 
 			
