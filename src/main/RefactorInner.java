@@ -1,9 +1,11 @@
 package main;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -11,17 +13,13 @@ public class RefactorInner {
 
 	public static void main(String[] args) {
 		String dir = "/home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_copy/com/sleepycat/";
-		String outDir = "" + new File(".").getAbsolutePath() + "/RefactorInner_output/";
+		String outDir = "../RefactorInner_output/";
 		if (args.length > 0)
 			dir = args[0];
 		if (args.length > 1)
 			outDir = args[1];
 
 		ArrayList<String> fileNames = getAllFilesInDirectory(dir);
-		for (String f : fileNames) {
-			System.out.println(f);
-		}
-
 		if (fileNames.size() > 0) {
 			for (String file : fileNames) {
 				writeFilesWithCommentedInnerStaticClasses(file, outDir);
@@ -33,10 +31,17 @@ public class RefactorInner {
 
 	private static void writeFilesWithCommentedInnerStaticClasses(String file, String outDir) {
 		
+		
 		try {
 			
 			BufferedReader buffReader = new BufferedReader(new FileReader(file));
-			//TODO BufferedWriter writeFilesHavingStatic
+			File inputFile = new File(file);
+			File directory = new File(outDir);
+	    if (! directory.exists()){
+	        directory.mkdir();
+	        // If you require it to make the entire directory path including parents,
+	        // use directory.mkdirs(); here instead.
+	    }
 			//TODO BuffereWriter log
 			
 			String line = "";
@@ -46,6 +51,9 @@ public class RefactorInner {
 
 			try 
 			{
+				BufferedWriter javaFile = new BufferedWriter(new FileWriter(outDir+inputFile.getName()));//TODO BufferedWriter writeFilesHavingStatic
+				System.out.println(outDir+inputFile.getName());
+
 				while((line=buffReader.readLine()) != null)
 				{
 					if(line.contains("static class"))
@@ -55,7 +63,10 @@ public class RefactorInner {
 						int numberofCloseBracket= countOccurrence(line, "}");
 						open_bracket_count += numberofOpenBracket;
 						close_bracket_count += numberofCloseBracket;
-						System.out.println("//"+line);
+						
+						//System.out.println("//"+line);
+						javaFile.write("// START_OF_STATIC_CLASS \n");
+						javaFile.write("//"+line+"\n");
 
 						
 					} else if (ecounterStatic)
@@ -64,21 +75,33 @@ public class RefactorInner {
 						int numberofCloseBracket= countOccurrence(line, "}");
 						open_bracket_count += numberofOpenBracket;
 						close_bracket_count += numberofCloseBracket;
-						System.out.println("//"+line);
+					//	System.out.println("//"+line);
+						javaFile.write("//"+line+"\n");
+
 
 						if(close_bracket_count == open_bracket_count)
 						{ //reset 
 							ecounterStatic = false;
 							open_bracket_count = 0;
 							close_bracket_count = 0;
-							System.out.println("//"+line);
+							//System.out.println("//"+line);
+							javaFile.write("//"+line+"\n");
+							javaFile.write("// END_OF_STATIC_CLASS \n");
+
+
 						}
 					}
 					else 
 					{
-						System.out.println(line); // do nothing 
+//						System.out.println(line); // do nothing 
+						javaFile.write("//"+line+"\n");
+
 					}
 				}
+				
+				javaFile.flush();
+				javaFile.close();
+			
 			} 
 			
 			catch (IOException e) {
@@ -86,7 +109,7 @@ public class RefactorInner {
 			}
 			
 			
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException  e) {
 			System.out.println("-----------------------------------------");
 			e.printStackTrace();
 		}
