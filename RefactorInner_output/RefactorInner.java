@@ -14,7 +14,7 @@ public class RefactorInner {
 	public static void main(String[] args) {
 		
 		String dir = new File("").getAbsolutePath();
-		String outDir = dir+"/refactor_InnerStaticClass_output/";
+		String outDir = dir+"/RefactorInner_output/";
 		if (args.length > 0)
 			dir = args[0];
 		if (args.length > 1)
@@ -57,20 +57,23 @@ public class RefactorInner {
 
 				while((line=buffReader.readLine()) != null)
 				{
-					if(line.contains("static class"))
-					{
-						ecounterStatic = true;
-						int numberofOpenBracket= countOccurrence(line, "{");
-						int numberofCloseBracket= countOccurrence(line, "}");
-						open_bracket_count += numberofOpenBracket;
-						close_bracket_count += numberofCloseBracket;
-						
-						//System.out.println("//"+line);
-						javaFile.write("// START_OF_STATIC_CLASS \n");
-						javaFile.write("//"+line+"\n");
-
-						
-					} else if (ecounterStatic)
+// START_OF_STATIC_CLASS 
+//					if(line.contains("static class"))
+//					{
+//						ecounterStatic = true;
+//						int numberofOpenBracket= countOccurrence(line, "{");
+//						int numberofCloseBracket= countOccurrence(line, "}");
+//						open_bracket_count += numberofOpenBracket;
+//						close_bracket_count += numberofCloseBracket;
+//						
+//						//System.out.println("//"+line);
+//						javaFile.write("// START_OF_STATIC_CLASS \n");
+//						javaFile.write("//"+line+"\n");
+//
+//						
+//					} else if (ecounterStatic)
+//					} else if (ecounterStatic)
+// END_OF_STATIC_CLASS 
 					{
 						int numberofOpenBracket= countOccurrence(line, "{");
 						int numberofCloseBracket= countOccurrence(line, "}");
