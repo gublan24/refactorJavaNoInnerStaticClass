@@ -19,7 +19,10 @@ public class RefactorInner {
 		String dir = new File("").getAbsolutePath();
 		String outDir = dir + "/refactor_innerStaticClass_backup";
 		if (args.length > 0)
+		{
 			dir = args[0];
+			outDir = dir + "/refactor_innerStaticClass_backup";
+		}
 		if (args.length > 1)
 			outDir = args[1];
 
@@ -39,7 +42,6 @@ public class RefactorInner {
 			logFile.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -53,54 +55,56 @@ public class RefactorInner {
 			
 			File inputFile = new File(file);
 			File directory = new File(outDir);
-			
-			if (!directory.exists()) 
-			{
-				directory.mkdir();
-			}
+			createDirectory(directory);
 			String line = "";
 			boolean ecounterStatic = false;
 			int open_bracket_count = 0;
 			int close_bracket_count = 0;
-
 			try 
 			{
 				String originalText = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
 				
 				String outputFullFileName = outDir +"/"+ inputFile.getName();
-				System.out.println(outputFullFileName);
+			//	System.out.println(outputFullFileName);
 				String newJavaFilecontent = "";
+				String staticClassSegment = "// Original file:"+ file + "\n";
+				staticClassSegment += "class "+ stripExtension(inputFile.getName())+" {" + "\n";
 				boolean toWriteNewJavaFile = false;
 				
 				while ((line = buffReader.readLine()) != null) 
 				{
 					if (line.contains("static class")) 
 					{
+						line = line.replace("public"," ");
 						ecounterStatic = true;
 						open_bracket_count += countOccurrence(line, "{");
 						close_bracket_count += countOccurrence(line, "}");
 						// System.out.println("//"+line);
 						newJavaFilecontent += "// START_OF_STATIC_CLASS \n";
-						newJavaFilecontent += "//"+ line + "\n";						
+						newJavaFilecontent += line + "\n";						
 						toWriteNewJavaFile = true;
+						staticClassSegment += "  "+ line+"\n";
 					} 
 					else if (ecounterStatic) 
 					{
 						open_bracket_count += countOccurrence(line, "{");
 						close_bracket_count += countOccurrence(line, "}");
-						newJavaFilecontent += "//"+ line + "\n";
+						newJavaFilecontent += line + "\n";
+						staticClassSegment += "  "+ line + "\n";
 
 						if (close_bracket_count == open_bracket_count) { // reset
 							ecounterStatic = false;
 							open_bracket_count = 0;
 							close_bracket_count = 0;
-							newJavaFilecontent += "//"+ line + "\n";
 							newJavaFilecontent += "// END_OF_STATIC_CLASS \n";
+							staticClassSegment += "}" + "\n"; // eclose the static class 
+
 						}
 					} 
 					else
 					{
-						newJavaFilecontent += line + "\n";
+						newJavaFilecontent += line + "\n"; 
+						//skip lines do not belong to static class  
 					}
 				} // END while(...)
 				
@@ -108,9 +112,18 @@ public class RefactorInner {
 				
 				if(toWriteNewJavaFile)
 				{
-					//writeToFile(newJavaFilecontent,logFile,file,file);
-					writeToFile(originalText,logFile,outputFullFileName,file);
-
+					writeToFile(newJavaFilecontent,logFile,file,file);// overwrite existing file
+					
+					
+					writeToFile(originalText,null,outputFullFileName,file); // write a backup
+					
+					String umpDir = outDir+"/ump/";
+					createDirectory(new File(umpDir));
+					String umpFile = umpDir+stripExtension(inputFile.getName())+"_static.ump";
+					writeToFile(staticClassSegment, null, umpFile, file); // static classes only 
+					
+					
+					System.out.println("use "+stripExtension(inputFile.getName())+"_static.ump"+"; ");
 				}
 				logFile.flush();
 			}
@@ -128,15 +141,24 @@ public class RefactorInner {
 
 	}
 
+	private static void createDirectory(File directory) {
+		if (!directory.exists()) 
+		{
+			directory.mkdir();
+		}
+	}
+
 	private static void writeToFile(String fileContent,BufferedWriter logFile ,String outputFullFileName, String file) throws IOException {
 		
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFullFileName));
 		if(bufferedWriter != null)
 		{
+			if(logFile != null)
 			bufferedWriter.write("// Original file location:  "+file+"\n");
 			bufferedWriter.write(fileContent );
 			bufferedWriter.flush();
 			bufferedWriter.close();
+			if(logFile != null)
 			logFile.append("" + file + "\n \t\t\t>>\n \t\t\t" + outputFullFileName + "\n");
 
 		}
@@ -162,6 +184,15 @@ public class RefactorInner {
 
 		return files;
 	}
+	
+	public static String stripExtension (String str) {
+    if (str == null) 
+    	return null;
+    int pos = str.lastIndexOf(".");
+    if (pos == -1)
+    	return str;
+    return str.substring(0, pos);
+}
 
 	public static int countOccurrence(String source, String sentence) {
 		int occurrences = 0;
