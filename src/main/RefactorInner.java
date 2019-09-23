@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -47,32 +49,34 @@ public class RefactorInner {
 
 	}
 
-	private static void writeFilesWithCommentedInnerStaticClasses(String file, String outDir, BufferedWriter logFile) {
+	private static void writeFilesWithCommentedInnerStaticClasses(String originalFileFullName, String outputDirectory_String, BufferedWriter logFile) {
 
 		try 
 		{
-			BufferedReader buffReader = new BufferedReader(new FileReader(file));
+			BufferedReader buffReader = new BufferedReader(new FileReader(originalFileFullName));
 			
-			File inputFile = new File(file);
-			File directory = new File(outDir);
-			createDirectory(directory);
+			File javaFileBeingRead_File = new File(originalFileFullName);
+			File outputDirectory_File = new File(outputDirectory_String);
+			createDirectory(outputDirectory_File);
 			String line = "";
 			boolean ecounterStatic = false;
 			int open_bracket_count = 0;
 			int close_bracket_count = 0;
 			try 
 			{
-				String originalText = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
-				
-				String outputFullFileName = outDir +"/"+ inputFile.getName();
-			//	System.out.println(outputFullFileName);
+				String originalText = new String(Files.readAllBytes(Paths.get(originalFileFullName)), StandardCharsets.UTF_8);
+				String outputFullFileName = outputDirectory_String +"/"+ javaFileBeingRead_File.getName();
 				String newJavaFilecontent = "";
-				String staticClassSegment = "// Original file:"+ file + "\n";
-				staticClassSegment += "class "+ stripExtension(inputFile.getName())+" {" + "\n";
+				
+				String staticClassSegment = "// Original file:"+ originalFileFullName + "\n";
+				staticClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
+				
 				boolean toWriteNewJavaFile = false;
 				
 				while ((line = buffReader.readLine()) != null) 
 				{
+		
+					
 					if (line.contains("static class")) 
 					{
 						line = line.replace("public"," ");
@@ -112,18 +116,23 @@ public class RefactorInner {
 				
 				if(toWriteNewJavaFile)
 				{
-					writeToFile(newJavaFilecontent,logFile,file,file);// overwrite existing file
+					writeToFile(newJavaFilecontent,logFile,originalFileFullName,originalFileFullName);// overwrite existing file
+					
+					writeToFile(originalText,null,outputFullFileName,originalFileFullName); // write a backup
+					
+					String umpleOutputDir = outputDirectory_String+"/ump/";
+					createDirectory(new File(umpleOutputDir));
+					String umpFile = umpleOutputDir+stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
+					writeToFile(staticClassSegment, null, umpFile, originalFileFullName); // static classes only 
 					
 					
-					writeToFile(originalText,null,outputFullFileName,file); // write a backup
+					System.out.println("use "+umpFile+"; ");
 					
-					String umpDir = outDir+"/ump/";
-					createDirectory(new File(umpDir));
-					String umpFile = umpDir+stripExtension(inputFile.getName())+"_static.ump";
-					writeToFile(staticClassSegment, null, umpFile, file); // static classes only 
-					
-					
-					System.out.println("use "+stripExtension(inputFile.getName())+"_static.ump"+"; ");
+					// write all use
+					OutputStream outStream = new FileOutputStream(umpleOutputDir+"master.ump",true);
+					outStream.write(("use "+umpFile).getBytes());
+					outStream.write("\n".getBytes());
+					outStream.close();
 				}
 				logFile.flush();
 			}
