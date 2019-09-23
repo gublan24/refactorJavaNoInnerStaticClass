@@ -14,7 +14,7 @@ public class RefactorInner {
 	public static void main(String[] args) {
 
 		String dir = new File("").getAbsolutePath();
-		String outDir = dir + "/refactor_InnerStaticClass_output/";
+		String outDir = dir + "/refactor_InnerStaticClass_output";
 		if (args.length > 0)
 			dir = args[0];
 		if (args.length > 1)
@@ -22,8 +22,8 @@ public class RefactorInner {
 
 		BufferedWriter logFile = null;
 		try {
-			logFile = new BufferedWriter(new FileWriter("log.txt", true));
-			logFile.append("---------------------------------------------------------" + "\n");
+			logFile = new BufferedWriter(new FileWriter(outDir+"log.txt", true));
+			logFile.append("Start: ---------------------------------------------------------" + "\n");
 
 			ArrayList<String> fileNames = getAllFilesInDirectory(dir);
 			if (fileNames.size() > 0) {
@@ -31,6 +31,7 @@ public class RefactorInner {
 					writeFilesWithCommentedInnerStaticClasses(file, outDir, logFile);
 				}
 			}
+			logFile.append("End: ---------------------------------------------------------" + "\n");
 
 			logFile.close();
 
@@ -59,7 +60,7 @@ public class RefactorInner {
 
 			try 
 			{
-				String outputFullFileName = outDir + inputFile.getName();
+				String outputFullFileName = outDir +"/"+ inputFile.getName();
 				System.out.println(outputFullFileName);
 
 				String newJavaFilecontent = "";
@@ -70,25 +71,17 @@ public class RefactorInner {
 					if (line.contains("static class")) 
 					{
 						ecounterStatic = true;
-						int numberofOpenBracket = countOccurrence(line, "{");
-						int numberofCloseBracket = countOccurrence(line, "}");
-						open_bracket_count += numberofOpenBracket;
-						close_bracket_count += numberofCloseBracket;
+						open_bracket_count += countOccurrence(line, "{");
+						close_bracket_count += countOccurrence(line, "}");
 						// System.out.println("//"+line);
 						newJavaFilecontent += "// START_OF_STATIC_CLASS \n";
-						newJavaFilecontent += "//"+ line + "\n";
-						logFile.append("" + file + "\n \t\t\t>>\t\t\t" + outputFullFileName + "\n");
-						logFile.append(" ---- ---- ---- "+"\n");
-
-						
+						newJavaFilecontent += "//"+ line + "\n";						
 						toWriteNewJavaFile = true;
 					} 
 					else if (ecounterStatic) 
 					{
-						int numberofOpenBracket = countOccurrence(line, "{");
-						int numberofCloseBracket = countOccurrence(line, "}");
-						open_bracket_count += numberofOpenBracket;
-						close_bracket_count += numberofCloseBracket;
+						open_bracket_count += countOccurrence(line, "{");
+						close_bracket_count += countOccurrence(line, "}");
 						newJavaFilecontent += "//"+ line + "\n";
 
 						if (close_bracket_count == open_bracket_count) { // reset
@@ -107,14 +100,9 @@ public class RefactorInner {
 				
 				if(toWriteNewJavaFile)
 				{
-					
 					BufferedWriter newJavaFileBufferedWriter = new BufferedWriter(new FileWriter(outputFullFileName));
-					writeToFile(newJavaFilecontent, newJavaFileBufferedWriter);
-				
-					
+					writeToFile(newJavaFilecontent, newJavaFileBufferedWriter,logFile,outputFullFileName,file);
 				}
-				
-				
 				logFile.flush();
 			}
 
@@ -131,12 +119,15 @@ public class RefactorInner {
 
 	}
 
-	private static void writeToFile(String fileContent, BufferedWriter bufferedWriter) throws IOException {
+	private static void writeToFile(String fileContent, BufferedWriter bufferedWriter,BufferedWriter logFile ,String outputFullFileName, String file) throws IOException {
 		if(bufferedWriter != null)
 		{
+			bufferedWriter.write("// Original file location:  "+file);
 			bufferedWriter.write(fileContent );
 			bufferedWriter.flush();
 			bufferedWriter.close();
+			logFile.append("" + file + "\n \t\t\t>>\n \t\t\t" + outputFullFileName + "\n");
+
 		}
 	}
 
