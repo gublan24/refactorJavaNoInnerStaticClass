@@ -49,6 +49,7 @@ public class RefactorInner {
 			BufferedReader buffReader = new BufferedReader(new FileReader(file));
 			File inputFile = new File(file);
 			File directory = new File(outDir);
+			
 			if (!directory.exists()) 
 			{
 				directory.mkdir();
@@ -122,7 +123,7 @@ public class RefactorInner {
 	private static void writeToFile(String fileContent, BufferedWriter bufferedWriter,BufferedWriter logFile ,String outputFullFileName, String file) throws IOException {
 		if(bufferedWriter != null)
 		{
-			bufferedWriter.write("// Original file location:  "+file);
+			bufferedWriter.write("// Original file location:  "+file+"\n");
 			bufferedWriter.write(fileContent );
 			bufferedWriter.flush();
 			bufferedWriter.close();
