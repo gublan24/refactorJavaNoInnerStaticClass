@@ -7,6 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class RefactorInner {
@@ -14,7 +17,7 @@ public class RefactorInner {
 	public static void main(String[] args) {
 
 		String dir = new File("").getAbsolutePath();
-		String outDir = dir + "/refactor_InnerStaticClass_output";
+		String outDir = dir + "/refactor_innerStaticClass_backup";
 		if (args.length > 0)
 			dir = args[0];
 		if (args.length > 1)
@@ -47,6 +50,7 @@ public class RefactorInner {
 		try 
 		{
 			BufferedReader buffReader = new BufferedReader(new FileReader(file));
+			
 			File inputFile = new File(file);
 			File directory = new File(outDir);
 			
@@ -61,9 +65,10 @@ public class RefactorInner {
 
 			try 
 			{
+				String originalText = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
+				
 				String outputFullFileName = outDir +"/"+ inputFile.getName();
 				System.out.println(outputFullFileName);
-
 				String newJavaFilecontent = "";
 				boolean toWriteNewJavaFile = false;
 				
@@ -103,7 +108,9 @@ public class RefactorInner {
 				
 				if(toWriteNewJavaFile)
 				{
-					writeToFile(newJavaFilecontent,logFile,outputFullFileName,file);
+					//writeToFile(newJavaFilecontent,logFile,file,file);
+					writeToFile(originalText,logFile,outputFullFileName,file);
+
 				}
 				logFile.flush();
 			}
@@ -134,6 +141,8 @@ public class RefactorInner {
 
 		}
 	}
+	
+	
 
 	private static ArrayList<String> getAllFilesInDirectory(String dir) {
 
