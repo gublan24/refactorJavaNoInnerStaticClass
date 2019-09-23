@@ -97,12 +97,13 @@ public class RefactorInner {
 					{
 						newJavaFilecontent += line + "\n";
 					}
-				}
+				} // END while(...)
+				
+				buffReader.close(); // closing the file after reading 
 				
 				if(toWriteNewJavaFile)
 				{
-					BufferedWriter newJavaFileBufferedWriter = new BufferedWriter(new FileWriter(outputFullFileName));
-					writeToFile(newJavaFilecontent, newJavaFileBufferedWriter,logFile,outputFullFileName,file);
+					writeToFile(newJavaFilecontent,logFile,outputFullFileName,file);
 				}
 				logFile.flush();
 			}
@@ -120,7 +121,9 @@ public class RefactorInner {
 
 	}
 
-	private static void writeToFile(String fileContent, BufferedWriter bufferedWriter,BufferedWriter logFile ,String outputFullFileName, String file) throws IOException {
+	private static void writeToFile(String fileContent,BufferedWriter logFile ,String outputFullFileName, String file) throws IOException {
+		
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFullFileName));
 		if(bufferedWriter != null)
 		{
 			bufferedWriter.write("// Original file location:  "+file+"\n");
