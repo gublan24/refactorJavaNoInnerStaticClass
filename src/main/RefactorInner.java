@@ -19,16 +19,17 @@ public class RefactorInner {
 	public static void main(String[] args) {
 
 		String dir = new File("").getAbsolutePath();
-		String outDir = dir + "/refactor_innerStaticClass_backup";
+		String outDir = dir + "/refactor_innerStatic_backup";
 		if (args.length > 0)
 		{
 			dir = args[0];
-			outDir = dir + "/refactor_innerStaticClass_backup";
+			outDir = dir + "/refactor_innerStatic_backup/";
 		}
 		if (args.length > 1)
 			outDir = args[1];
 
 		BufferedWriter logFile = null;
+		createDirectory(outDir);
 		try {
 			logFile = new BufferedWriter(new FileWriter(outDir+"log.txt", true));
 			logFile.append("Start: ---------------------------------------------------------" + "\n");
@@ -56,8 +57,8 @@ public class RefactorInner {
 			BufferedReader buffReader = new BufferedReader(new FileReader(originalFileFullName));
 			
 			File javaFileBeingRead_File = new File(originalFileFullName);
-			File outputDirectory_File = new File(outputDirectory_String);
-			createDirectory(outputDirectory_File);
+			//File outputDirectory_File = 
+			createDirectory(outputDirectory_String);
 			String line = "";
 			boolean ecounterStatic = false;
 			int open_bracket_count = 0;
@@ -65,7 +66,8 @@ public class RefactorInner {
 			try 
 			{
 				String originalText = new String(Files.readAllBytes(Paths.get(originalFileFullName)), StandardCharsets.UTF_8);
-				String outputFullFileName = outputDirectory_String +"/"+ javaFileBeingRead_File.getName();
+				createDirectory(outputDirectory_String+"/originalFiles");
+				String outputFullFileName = outputDirectory_String + "/originalFiles/"+javaFileBeingRead_File.getName();
 				String newJavaFilecontent = "";
 				
 				String staticClassSegment = "// Original file:"+ originalFileFullName + "\n";
@@ -91,7 +93,7 @@ public class RefactorInner {
 						close_bracket_count += countOccurrence(line, "}");
 						// System.out.println("//"+line);
 						newJavaFilecontent += "// START_OF_STATIC_CLASS \n";
-						newJavaFilecontent += line + "\n";						
+						newJavaFilecontent += "// "+line + "\n";						
 						toWriteNewJavaFile = true;
 						staticClassSegment = staticClassSegment.replace("// NAME_SPACE", classNamespace);
 						staticClassSegment += "  "+ line+"\n";
@@ -100,7 +102,7 @@ public class RefactorInner {
 					{
 						open_bracket_count += countOccurrence(line, "{");
 						close_bracket_count += countOccurrence(line, "}");
-						newJavaFilecontent += line + "\n";
+						newJavaFilecontent += "// "+line + "\n";
 						staticClassSegment += "  "+ line + "\n";
 
 						if (close_bracket_count == open_bracket_count) { // reset
@@ -128,7 +130,7 @@ public class RefactorInner {
 					writeToFile(originalText,null,outputFullFileName,originalFileFullName); // write a backup
 					
 					String umpleOutputDir = outputDirectory_String+"/ump/";
-					createDirectory(new File(umpleOutputDir));
+					createDirectory(umpleOutputDir);
 					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
 					writeToFile(staticClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
 					
@@ -157,11 +159,13 @@ public class RefactorInner {
 
 	}
 
-	private static void createDirectory(File directory) {
+	private static File createDirectory(String dir) {
+		File directory = new File(dir);
 		if (!directory.exists()) 
 		{
 			directory.mkdir();
 		}
+		return directory;
 	}
 
 	private static void writeToFile(String fileContent,BufferedWriter logFile ,String outputFullFileName, String file) throws IOException {
@@ -175,8 +179,7 @@ public class RefactorInner {
 			bufferedWriter.flush();
 			bufferedWriter.close();
 			if(logFile != null)
-			logFile.append("" + file + "\n \t\t\t>>\n \t\t\t" + outputFullFileName + "\n");
-
+			logFile.append("" + file + "\n ");
 		}
 	}
 	
