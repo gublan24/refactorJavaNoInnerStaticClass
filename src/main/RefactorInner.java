@@ -71,10 +71,9 @@ public class RefactorInner {
 				  }
 				  input.close();
 				  if(terminationNum==0)
-					System.out.println("STEP 2 Finished");
+				  	System.out.println("STEP 2 Finished");
 				  else
 						System.out.println("STEP 2 has some errors.");
-
 
 				} 
 				catch (InterruptedException e) {
@@ -97,7 +96,6 @@ public class RefactorInner {
 		try 
 		{
 			BufferedReader buffReader = new BufferedReader(new FileReader(originalFileFullName));
-			
 			File javaFileBeingRead_File = new File(originalFileFullName);
 			//File outputDirectory_File = 
 			createDirectory(outputDirectory_String);
@@ -105,8 +103,6 @@ public class RefactorInner {
 			boolean ecounterStatic = false;
 			int open_bracket_count = 0;
 			int close_bracket_count = 0;
-			
-			boolean classDef= false;
 			try 
 			{
 				String originalText = new String(Files.readAllBytes(Paths.get(originalFileFullName)), StandardCharsets.UTF_8);
@@ -133,16 +129,13 @@ public class RefactorInner {
 					boolean innerInterface = line.matches("(interface|.*.interface) [A-Z].*")&& !line.contains(stripExtension(javaFileBeingRead_File.getName()));
 					if (line.contains("static class") || innerClass || innerInterface) 
 					{
-						
 						if (!(line.contains("{") && (line.replace("{", " ").matches(".*\\W"))))
-							{
-							System.out.println("This line contains class keyword: >>"+line);
+						{
+							System.out.println("This line contains inner java keyword (class, or interface): >>"+line);
 							newJavaFilecontent += line + "\n"; 
 							continue;
-							
-							}
-						
-						//REPLACE accessor
+						}
+						//REPLACE access modifiers ...
 						line = line.replace("public","").trim();
 						line = line.replace("private","").trim();
 						line = line.replace("final","").trim();
@@ -175,22 +168,8 @@ public class RefactorInner {
 							open_bracket_count = 0;
 							close_bracket_count = 0;
 							newJavaFilecontent += "// END_OF_STATIC_CLASS \n";
-
 						}
 					}
-			//		else if ()
-				//	{
-					//	if (line.contains("{") && (line.replace("{", " ").matches(".*\\W")))
-					//	{
-						//	System.out.println(line);
-						//	newJavaFilecontent += line + "\n"; 
-
-						//}
-						//else 
-							///newJavaFilecontent += line + "\n"; 
-						
-					//}
-					
 					else
 					{
 						newJavaFilecontent += line + "\n"; 
@@ -211,7 +190,6 @@ public class RefactorInner {
 					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
 					writeToFile(innerClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
 					
-					
 					//System.out.println("use "+umpFile+"; ");
 					
 					// write all use
@@ -229,11 +207,11 @@ public class RefactorInner {
 			}
 
 		} 
-		catch (FileNotFoundException e) {
+		catch (FileNotFoundException e) 
+		{
 			System.out.println("-----------------------------------------");
 			e.printStackTrace();
 		}
-
 	}
 
 	private static File createDirectory(String dir) {
