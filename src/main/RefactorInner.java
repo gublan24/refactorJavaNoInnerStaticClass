@@ -105,6 +105,8 @@ public class RefactorInner {
 			boolean ecounterStatic = false;
 			int open_bracket_count = 0;
 			int close_bracket_count = 0;
+			
+			boolean classDef= false;
 			try 
 			{
 				String originalText = new String(Files.readAllBytes(Paths.get(originalFileFullName)), StandardCharsets.UTF_8);
@@ -115,7 +117,7 @@ public class RefactorInner {
 				innerClassSegment+= "// NAME_SPACE" + "\n";
 				// parent class is 
 				innerClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
-				
+				//!line.contains(" "+stripExtension(javaFileBeingRead_File.getName())+" ");
 				boolean toWriteNewJavaFile = false;
 				String classNamespace = "";
 				while ((line = buffReader.readLine()) != null) 
@@ -124,11 +126,12 @@ public class RefactorInner {
 					{
 						classNamespace = line.replace("package", "namespace");
 						//System.out.println(classNamespace);
-					}
-		
-					boolean innerClass =line.matches("(class|.*.class) [A-Z].*") && !line.contains(stripExtension(javaFileBeingRead_File.getName()));
-					
-					if (line.contains("static class") || innerClass) 
+					}	
+					// detect inner class def. inner interface def.
+					boolean innerClass =line.matches("(class|.*.class) [A-Z].*") && !line.contains("class "+stripExtension(javaFileBeingRead_File.getName()).trim()+" ");
+				
+					boolean innerInterface = line.matches("(interface|.*.interface) [A-Z].*")&& !line.contains(stripExtension(javaFileBeingRead_File.getName()));
+					if (line.contains("static class") || innerClass || innerInterface) 
 					{
 						
 						if (!(line.contains("{") && (line.replace("{", " ").matches(".*\\W"))))
@@ -139,16 +142,13 @@ public class RefactorInner {
 							
 							}
 						
-						//REPLACE
+						//REPLACE accessor
 						line = line.replace("public","").trim();
 						line = line.replace("private","").trim();
 						line = line.replace("final","").trim();
-						line = line.replace("protected","").trim();
-
-						
-
+						line = line.replace("protected","").trim();						
 						//
-						if(!line.contains("static"))
+						if(!line.contains("static") && !line.contains("interface"))
 						{
 							line = "inner "+line;
 						}
@@ -175,7 +175,6 @@ public class RefactorInner {
 							open_bracket_count = 0;
 							close_bracket_count = 0;
 							newJavaFilecontent += "// END_OF_STATIC_CLASS \n";
-							innerClassSegment += "}" + "\n"; // eclose the static class 
 
 						}
 					}
