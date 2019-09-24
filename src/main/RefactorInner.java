@@ -116,6 +116,9 @@ public class RefactorInner {
 				staticClassSegment+= "// NAME_SPACE" + "\n";
 				staticClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
 				
+				
+				String specialClass= "";
+				boolean specialClassFlag=false;
 				boolean toWriteNewJavaFile = false;
 				String classNamespace = "";
 				while ((line = buffReader.readLine()) != null) 
@@ -140,6 +143,37 @@ public class RefactorInner {
 						staticClassSegment = staticClassSegment.replace("// NAME_SPACE", classNamespace);
 						staticClassSegment += "  "+ line+"\n";
 					} 
+					/*
+					else if (line.matches("(class|.*.class) [A-Z].*") && !line.contains(stripExtension(javaFileBeingRead_File.getName())))
+					{
+						if (line.contains("{") && (line.replace("{", " ").matches(".*\\W")))
+						{
+							specialClass+=line+"\n";
+							specialClassFlag =true;
+						}
+						else 
+						System.out.println("Not a class >>>"+line);
+						
+					}
+					
+					else if (specialClassFlag) 
+					{
+						open_bracket_count += countOccurrence(line, "{");
+						close_bracket_count += countOccurrence(line, "}");
+						newJavaFilecontent += "// "+line + "\n";
+						specialClass+=line+"\n";
+
+						if (close_bracket_count == open_bracket_count) { // reset
+							specialClassFlag = false;
+							open_bracket_count = 0;
+							close_bracket_count = 0;
+							newJavaFilecontent += "// END_OF_Secial_CLASS \n";
+							specialClass+=line+"\n";
+
+
+						}
+					}
+					*/
 					else if (ecounterStatic) 
 					{
 						open_bracket_count += countOccurrence(line, "{");
@@ -165,6 +199,16 @@ public class RefactorInner {
 				
 				buffReader.close(); // closing the file after reading 
 				
+				if(!specialClass.equals(""))
+				{
+				//	String specialFileDir = outputDirectory_String+"/ump_special/";
+				//	createDirectory(specialFileDir);
+				//	String specialFile = specialFileDir+stripExtension(javaFileBeingRead_File.getName())+"_special.ump";
+				//	OutputStream outStream2 = new FileOutputStream(specialFile);
+				//	outStream2.write(specialClass.getBytes());
+				//	outStream2.write("\n".getBytes());
+				//	outStream2.close();
+				}
 				if(toWriteNewJavaFile)
 				{
 					writeToFile(newJavaFilecontent,logFile,originalFileFullName,originalFileFullName);// overwrite existing file
