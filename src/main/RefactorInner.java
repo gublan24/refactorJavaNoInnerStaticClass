@@ -79,7 +79,7 @@ public class RefactorInner {
 					if(line.matches("package.*.;.*"))
 					{
 						classNamespace = line.replace("package", "namespace");
-						System.out.println(classNamespace);
+						//System.out.println(classNamespace);
 					}
 		
 					
@@ -129,15 +129,15 @@ public class RefactorInner {
 					
 					String umpleOutputDir = outputDirectory_String+"/ump/";
 					createDirectory(new File(umpleOutputDir));
-					String umpFile = umpleOutputDir+stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
-					writeToFile(staticClassSegment, null, umpFile, originalFileFullName); // static classes only 
+					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
+					writeToFile(staticClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
 					
 					
-					//System.out.println("use "+umpFile+"; ");
+					System.out.println("use "+umpFile+"; ");
 					
 					// write all use
 					OutputStream outStream = new FileOutputStream(umpleOutputDir+"master.ump",true);
-					outStream.write(("use "+umpFile).getBytes());
+					outStream.write(("use "+umpFile+"; ").getBytes());
 					outStream.write("\n".getBytes());
 					outStream.close();
 				}
