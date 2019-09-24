@@ -155,7 +155,20 @@ public class RefactorInner {
 							staticClassSegment += "}" + "\n"; // eclose the static class 
 
 						}
-					} 
+					}
+					else if (line.matches("(class|.*.class) [A-Z].*") && !line.contains(stripExtension(javaFileBeingRead_File.getName())))
+					{
+						if (line.contains("{") && (line.replace("{", " ").matches(".*\\W")))
+						{
+							System.out.println(line);
+							newJavaFilecontent += line + "\n"; 
+
+						}
+						else 
+							newJavaFilecontent += line + "\n"; 
+						
+					}
+					
 					else
 					{
 						newJavaFilecontent += line + "\n"; 
