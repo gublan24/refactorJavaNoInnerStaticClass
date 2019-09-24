@@ -111,10 +111,10 @@ public class RefactorInner {
 				createDirectory(outputDirectory_String+"/originalFiles");
 				String outputFullFileName = outputDirectory_String + "/originalFiles/"+javaFileBeingRead_File.getName();
 				String newJavaFilecontent = "";
-				
-				String staticClassSegment = "// Original file:"+ originalFileFullName + "\n";
-				staticClassSegment+= "// NAME_SPACE" + "\n";
-				staticClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
+				String innerClassSegment = "// Original file:"+ originalFileFullName + "\n";
+				innerClassSegment+= "// NAME_SPACE" + "\n";
+				// parent class is 
+				innerClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
 				
 				boolean toWriteNewJavaFile = false;
 				String classNamespace = "";
@@ -126,10 +126,33 @@ public class RefactorInner {
 						//System.out.println(classNamespace);
 					}
 		
+					boolean innerClass =line.matches("(class|.*.class) [A-Z].*") && !line.contains(stripExtension(javaFileBeingRead_File.getName()));
 					
-					if (line.contains("static class")) 
+					if (line.contains("static class") || innerClass) 
 					{
-						line = line.replace("public"," ");
+						
+						if (!(line.contains("{") && (line.replace("{", " ").matches(".*\\W"))))
+							{
+							System.out.println("This line contains class keyword: >>"+line);
+							newJavaFilecontent += line + "\n"; 
+							continue;
+							
+							}
+						
+						//REPLACE
+						line = line.replace("public","").trim();
+						line = line.replace("private","").trim();
+						line = line.replace("final","").trim();
+						line = line.replace("protected","").trim();
+
+						
+
+						//
+						if(!line.contains("static"))
+						{
+							line = "inner "+line;
+						}
+						//
 						ecounterStatic = true;
 						open_bracket_count += countOccurrence(line, "{");
 						close_bracket_count += countOccurrence(line, "}");
@@ -137,37 +160,37 @@ public class RefactorInner {
 						newJavaFilecontent += "// START_OF_STATIC_CLASS \n";
 						newJavaFilecontent += "// "+line + "\n";						
 						toWriteNewJavaFile = true;
-						staticClassSegment = staticClassSegment.replace("// NAME_SPACE", classNamespace);
-						staticClassSegment += "  "+ line+"\n";
+						innerClassSegment = innerClassSegment.replace("// NAME_SPACE", classNamespace);
+						innerClassSegment += "  "+ line+"\n";
 					} 
 					else if (ecounterStatic) 
 					{
 						open_bracket_count += countOccurrence(line, "{");
 						close_bracket_count += countOccurrence(line, "}");
 						newJavaFilecontent += "// "+line + "\n";
-						staticClassSegment += "  "+ line + "\n";
+						innerClassSegment += "  "+ line + "\n";
 
 						if (close_bracket_count == open_bracket_count) { // reset
 							ecounterStatic = false;
 							open_bracket_count = 0;
 							close_bracket_count = 0;
 							newJavaFilecontent += "// END_OF_STATIC_CLASS \n";
-							staticClassSegment += "}" + "\n"; // eclose the static class 
+							innerClassSegment += "}" + "\n"; // eclose the static class 
 
 						}
 					}
-					else if (line.matches("(class|.*.class) [A-Z].*") && !line.contains(stripExtension(javaFileBeingRead_File.getName())))
-					{
-						if (line.contains("{") && (line.replace("{", " ").matches(".*\\W")))
-						{
-							System.out.println(line);
-							newJavaFilecontent += line + "\n"; 
+			//		else if ()
+				//	{
+					//	if (line.contains("{") && (line.replace("{", " ").matches(".*\\W")))
+					//	{
+						//	System.out.println(line);
+						//	newJavaFilecontent += line + "\n"; 
 
-						}
-						else 
-							newJavaFilecontent += line + "\n"; 
+						//}
+						//else 
+							///newJavaFilecontent += line + "\n"; 
 						
-					}
+					//}
 					
 					else
 					{
@@ -187,7 +210,7 @@ public class RefactorInner {
 					String umpleOutputDir = outputDirectory_String+"/ump_static/";
 					createDirectory(umpleOutputDir);
 					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
-					writeToFile(staticClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
+					writeToFile(innerClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
 					
 					
 					//System.out.println("use "+umpFile+"; ");
