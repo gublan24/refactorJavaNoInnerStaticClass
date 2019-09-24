@@ -69,12 +69,18 @@ public class RefactorInner {
 				String newJavaFilecontent = "";
 				
 				String staticClassSegment = "// Original file:"+ originalFileFullName + "\n";
+				staticClassSegment+= "// NAME_SPACE" + "\n";
 				staticClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
 				
 				boolean toWriteNewJavaFile = false;
-				
+				String classNamespace = "";
 				while ((line = buffReader.readLine()) != null) 
 				{
+					if(line.matches("package.*.;.*"))
+					{
+						classNamespace = line.replace("package", "namespace");
+						System.out.println(classNamespace);
+					}
 		
 					
 					if (line.contains("static class")) 
@@ -87,6 +93,7 @@ public class RefactorInner {
 						newJavaFilecontent += "// START_OF_STATIC_CLASS \n";
 						newJavaFilecontent += line + "\n";						
 						toWriteNewJavaFile = true;
+						staticClassSegment = staticClassSegment.replace("// NAME_SPACE", classNamespace);
 						staticClassSegment += "  "+ line+"\n";
 					} 
 					else if (ecounterStatic) 
@@ -126,7 +133,7 @@ public class RefactorInner {
 					writeToFile(staticClassSegment, null, umpFile, originalFileFullName); // static classes only 
 					
 					
-					System.out.println("use "+umpFile+"; ");
+					//System.out.println("use "+umpFile+"; ");
 					
 					// write all use
 					OutputStream outStream = new FileOutputStream(umpleOutputDir+"master.ump",true);
