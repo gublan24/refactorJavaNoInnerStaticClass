@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -19,17 +21,22 @@ public class RefactorInner {
 	public static void main(String[] args) {
 
 		String dir = new File("").getAbsolutePath();
-		String outDir = dir + "/refactor_innerStatic_backup";
+		String outDir = dir + "/../refactor_innerStatic/backup";
+		boolean doUmplification = false;
 		if (args.length > 0)
 		{
 			dir = args[0];
-			outDir = dir + "/refactor_innerStatic_backup/";
+			outDir = dir + "/../refactor_innerStatic/backup";
 		}
 		if (args.length > 1)
 			outDir = args[1];
-
+		if (args.length >2)
+			doUmplification = args[2].equals("true");
+		
 		BufferedWriter logFile = null;
 		createDirectory(outDir);
+		
+		System.out.println("STEP 1: prepare java files ... ");
 		try {
 			logFile = new BufferedWriter(new FileWriter(outDir+"log.txt", true));
 			logFile.append("Start: ---------------------------------------------------------" + "\n");
@@ -41,10 +48,45 @@ public class RefactorInner {
 				}
 			}
 			logFile.append("End: ---------------------------------------------------------" + "\n");
-
 			logFile.close();
+			
+			// STEP 2: run umplificator
+			System.out.println("STEP 1 FINISHED.");			
+		// Run a java app in a separate system process
+			//ProcessBuilder builder = new ProcessBuilder("java -jar /home/abdulaziz/Desktop/BerkeleyDb/umplificator.jar");		    
+			//Process process = builder.start();
 
-		} catch (IOException e) {
+			if (doUmplification) {
+				
+				System.out.println("STEP 2: run umplificator for directory ("+dir+") ...");
+				File umpiliDir = createDirectory(dir+"/../refactor_innerStatic/out_umplification");
+				Process proc = Runtime.getRuntime().exec("java -jar /home/abdulaziz/Desktop/BerkeleyDb/umplificator.jar " + dir + " --path="+umpiliDir.getAbsolutePath());
+				try 
+				{
+					int terminationNum = proc.waitFor();
+					String line;
+				  BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+				  while ((line = input.readLine()) != null) {
+				    System.out.println(line);
+				  }
+				  input.close();
+				  if(terminationNum==0)
+					System.out.println("STEP 2 Finished");
+				  else
+						System.out.println("STEP 2 has some errors.");
+
+
+				} 
+				catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				// System.out.println(proc.getOutputStream().toString());
+				// InputStream err = proc.getErrorStream();
+			} 
+				
+			
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 
@@ -129,13 +171,13 @@ public class RefactorInner {
 					
 					writeToFile(originalText,null,outputFullFileName,originalFileFullName); // write a backup
 					
-					String umpleOutputDir = outputDirectory_String+"/ump/";
+					String umpleOutputDir = outputDirectory_String+"/ump_static/";
 					createDirectory(umpleOutputDir);
 					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
 					writeToFile(staticClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
 					
 					
-					System.out.println("use "+umpFile+"; ");
+					//System.out.println("use "+umpFile+"; ");
 					
 					// write all use
 					OutputStream outStream = new FileOutputStream(umpleOutputDir+"master.ump",true);
