@@ -142,7 +142,8 @@ public class RefactorInner {
 						}
 						if(bracket_count_class == 0)
 						{
-							// elements is not inner of a class 
+							// elements is not inner of a class
+							// the case of multiple classes in one java files. One is public.
 							throw new UnknownError("This is not inner element"+line);
 						}
 						
