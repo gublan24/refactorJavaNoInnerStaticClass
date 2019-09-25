@@ -176,7 +176,7 @@ public class RefactorInner {
 						//skip lines do not belong to static class  
 					}
 				} // END while(...)
-				
+				innerClassSegment += "}"+"\n"; // close the outer class
 				buffReader.close(); // closing the file after reading 
 				
 				if(toWriteNewJavaFile)
@@ -185,15 +185,15 @@ public class RefactorInner {
 					
 					writeToFile(originalText,null,outputFullFileName,originalFileFullName); // write a backup
 					
-					String umpleOutputDir = outputDirectory_String+"/ump_static/";
+					String umpleOutputDir = outputDirectory_String+"/ump_inner/";
 					createDirectory(umpleOutputDir);
-					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_static.ump";
+					String umpFile = stripExtension(javaFileBeingRead_File.getName())+"_inner.ump";
 					writeToFile(innerClassSegment, null, umpleOutputDir+umpFile, originalFileFullName); // static classes only 
 					
 					//System.out.println("use "+umpFile+"; ");
 					
 					// write all use
-					OutputStream outStream = new FileOutputStream(umpleOutputDir+"master.ump",true);
+					OutputStream outStream = new FileOutputStream(umpleOutputDir+"Master.ump",true);
 					outStream.write(("use "+umpFile+"; ").getBytes());
 					outStream.write("\n".getBytes());
 					outStream.close();

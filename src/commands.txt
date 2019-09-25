@@ -1,0 +1,5 @@
+ rm -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x && cp -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x && java RefactorInner.java /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/com/
+
+~/Desktop/BerkeleyDb/javaFiles/base_x$ java -jar ~/umple/dist/umple.jar umplific/Master.ump
+
+~/Desktop/BerkeleyDb/javaFiles/base_x$ java -jar ../../umplificator.jar /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/com/sleepycat/ --path=/home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/umplific && java -jar ~/umple/dist/umple.jar umplific/Master.ump
