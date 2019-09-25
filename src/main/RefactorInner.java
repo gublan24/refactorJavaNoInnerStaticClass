@@ -21,12 +21,12 @@ public class RefactorInner {
 	public static void main(String[] args) {
 
 		String dir = new File("").getAbsolutePath();
-		String outDir = dir + "/../refactor_innerStatic/backup";
+		String outDir = dir + "/refactor_inner/";
 		boolean doUmplification = false;
 		if (args.length > 0)
 		{
 			dir = args[0];
-			outDir = dir + "/../refactor_innerStatic/backup";
+			outDir = dir + "/refactor_inner/";
 		}
 		if (args.length > 1)
 			outDir = args[1];
@@ -44,7 +44,9 @@ public class RefactorInner {
 			ArrayList<String> fileNames = getAllFilesInDirectory(dir);
 			if (fileNames.size() > 0) {
 				for (String file : fileNames) {
-					writeFilesWithCommentedInnerStaticClasses(file, outDir, logFile);
+					//apply for only java files
+					if(file.endsWith(".java"))
+					writeCommentsOnLinesOfFilesWithInnerElements(file, outDir, logFile);
 				}
 			}
 			logFile.append("End: ---------------------------------------------------------" + "\n");
@@ -59,7 +61,7 @@ public class RefactorInner {
 			if (doUmplification) {
 				
 				System.out.println("STEP 2: run umplificator for directory ("+dir+") ...");
-				File umpiliDir = createDirectory(dir+"/../refactor_innerStatic/out_umplification");
+				File umpiliDir = createDirectory(dir+"/../refactor_inner/out_umplification");
 				Process proc = Runtime.getRuntime().exec("java -jar /home/abdulaziz/Desktop/BerkeleyDb/umplificator.jar " + dir + " --path="+umpiliDir.getAbsolutePath());
 				try 
 				{
@@ -91,33 +93,36 @@ public class RefactorInner {
 
 	}
 
-	private static void writeFilesWithCommentedInnerStaticClasses(String originalFileFullName, String outputDirectory_String, BufferedWriter logFile) {
+	private static void writeCommentsOnLinesOfFilesWithInnerElements(String originalFileFullName, String outputDirectory_String, BufferedWriter logFile) {
 
 		try 
 		{
 			BufferedReader buffReader = new BufferedReader(new FileReader(originalFileFullName));
 			File javaFileBeingRead_File = new File(originalFileFullName);
-			//File outputDirectory_File = 
 			createDirectory(outputDirectory_String);
-			String line = "";
-			boolean ecounterStatic = false;
-			int open_bracket_count = 0;
-			int close_bracket_count = 0;
 			try 
 			{
 				String originalText = new String(Files.readAllBytes(Paths.get(originalFileFullName)), StandardCharsets.UTF_8);
 				createDirectory(outputDirectory_String+"/originalFiles");
 				String outputFullFileName = outputDirectory_String + "/originalFiles/"+javaFileBeingRead_File.getName();
 				String newJavaFilecontent = "";
+				
+				//Header to point to original file:
 				String innerClassSegment = "// Original file:"+ originalFileFullName + "\n";
 				innerClassSegment+= "// NAME_SPACE" + "\n";
-				// parent class is 
+				// Outer class def for all inners in one file:  
 				innerClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
-				//!line.contains(" "+stripExtension(javaFileBeingRead_File.getName())+" ");
 				boolean toWriteNewJavaFile = false;
 				String classNamespace = "";
+				String line = "";
+				boolean ecounterStatic = false;
+				
+				int bracket_count_class = 0; // ++ for open , -- for close.
+				int open_bracket_count = 0;
+				int close_bracket_count = 0;
+				
 				while ((line = buffReader.readLine()) != null) 
-				{
+				{	
 					if(line.matches("package.*.;.*"))
 					{
 						classNamespace = line.replace("package", "namespace");
@@ -135,12 +140,18 @@ public class RefactorInner {
 							newJavaFilecontent += line + "\n"; 
 							continue;
 						}
+						if(bracket_count_class == 0)
+						{
+							// elements is not inner of a class 
+							throw new UnknownError("This is not inner element"+line);
+						}
+						
 						//REPLACE access modifiers ...
 						line = line.replace("public","").trim();
 						line = line.replace("private","").trim();
 						line = line.replace("final","").trim();
 						line = line.replace("protected","").trim();						
-						//
+						// add inner keyword
 						if(!line.contains("static") && !line.contains("interface"))
 						{
 							line = "inner "+line;
@@ -149,8 +160,7 @@ public class RefactorInner {
 						ecounterStatic = true;
 						open_bracket_count += countOccurrence(line, "{");
 						close_bracket_count += countOccurrence(line, "}");
-						// System.out.println("//"+line);
-						newJavaFilecontent += "// START_OF_STATIC_CLASS \n";
+						newJavaFilecontent += "// START_OF_INNER_ELEMENT \n";
 						newJavaFilecontent += "// "+line + "\n";						
 						toWriteNewJavaFile = true;
 						innerClassSegment = innerClassSegment.replace("// NAME_SPACE", classNamespace);
@@ -167,17 +177,21 @@ public class RefactorInner {
 							ecounterStatic = false;
 							open_bracket_count = 0;
 							close_bracket_count = 0;
-							newJavaFilecontent += "// END_OF_STATIC_CLASS \n";
+							newJavaFilecontent += "// END_OF_INNER_ELEMENT \n";
 						}
 					}
 					else
-					{
+					{						
+						//skip lines that do not have inner elements.
 						newJavaFilecontent += line + "\n"; 
-						//skip lines do not belong to static class  
 					}
+					
+					bracket_count_class += countOccurrence(line, "{");
+					bracket_count_class -= countOccurrence(line, "}");
+					
 				} // END while(...)
-				innerClassSegment += "}"+"\n"; // close the outer class
-				buffReader.close(); // closing the file after reading 
+				innerClassSegment += "}"+"\n"; // close the outer class.
+				buffReader.close(); // closing the file after reading.
 				
 				if(toWriteNewJavaFile)
 				{
@@ -192,7 +206,7 @@ public class RefactorInner {
 					
 					//System.out.println("use "+umpFile+"; ");
 					
-					// write all use
+					// write all use-statements in one .ump file
 					OutputStream outStream = new FileOutputStream(umpleOutputDir+"Master.ump",true);
 					outStream.write(("use "+umpFile+"; ").getBytes());
 					outStream.write("\n".getBytes());

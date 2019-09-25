@@ -1,3 +1,5 @@
+
+// delete base_x then create a copy again // apply refactoring
  rm -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x && cp -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x && java RefactorInner.java /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/com/
 
 ~/Desktop/BerkeleyDb/javaFiles/base_x$ java -jar ~/umple/dist/umple.jar umplific/Master.ump
