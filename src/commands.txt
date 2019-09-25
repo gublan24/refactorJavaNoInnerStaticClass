@@ -3,3 +3,6 @@
 ~/Desktop/BerkeleyDb/javaFiles/base_x$ java -jar ~/umple/dist/umple.jar umplific/Master.ump
 
 ~/Desktop/BerkeleyDb/javaFiles/base_x$ java -jar ../../umplificator.jar /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/com/sleepycat/ --path=/home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/umplific && java -jar ~/umple/dist/umple.jar umplific/Master.ump
+
+
+
