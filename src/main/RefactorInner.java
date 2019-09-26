@@ -302,7 +302,7 @@ public class RefactorInner {
 	}
 	
 	
-	private static ArrayList<String> getSubDirectory(String dir) {
+	public static ArrayList<String> getSubDirectory(String dir) {
 
 		ArrayList<String> files = new ArrayList<>();
 		File f = new File(dir);
