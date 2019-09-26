@@ -7,4 +7,11 @@
 ~/Desktop/BerkeleyDb/javaFiles/base_x$ java -jar ../../umplificator.jar /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/com/sleepycat/ --path=/home/abdulaziz/Desktop/BerkeleyDb/javaFiles/base_x/umplific && java -jar ~/umple/dist/umple.jar umplific/Master.ump
 
 
+rm -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/loggingBase_x && cp -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/LoggingBase /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/loggingBase_x && cd /home/abdulaziz/eclipse-workspace/refactorJavaNoInnerStaticClass/src/main && java RefactorInner.java /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/loggingBase_x/com/
+
+
+~/Desktop/BerkeleyDb/javaFiles$ java -jar ~/umple/dist/umple.jar umplific/Master.ump
+
+
+
 

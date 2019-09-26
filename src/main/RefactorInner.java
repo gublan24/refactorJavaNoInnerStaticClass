@@ -22,7 +22,7 @@ public class RefactorInner {
 
 		String dir = new File("").getAbsolutePath();
 		String outDir = dir + "/refactor_inner/";
-		boolean doUmplification = false;
+		boolean doForRootDir = false;
 		if (args.length > 0)
 		{
 			dir = args[0];
@@ -31,8 +31,9 @@ public class RefactorInner {
 		if (args.length > 1)
 			outDir = args[1];
 		if (args.length >2)
-			doUmplification = args[2].equals("true");
+			doForRootDir = args[2].equals("root");
 		
+
 		BufferedWriter logFile = null;
 		createDirectory(outDir);
 		
@@ -41,6 +42,8 @@ public class RefactorInner {
 			logFile = new BufferedWriter(new FileWriter(outDir+"log.txt", true));
 			logFile.append("Start: ---------------------------------------------------------" + "\n");
 
+			if(!doForRootDir)
+			{
 			ArrayList<String> fileNames = getAllFilesInDirectory(dir);
 			if (fileNames.size() > 0) {
 				for (String file : fileNames) {
@@ -49,16 +52,40 @@ public class RefactorInner {
 					writeCommentsOnLinesOfFilesWithInnerElements(file, outDir, logFile);
 				}
 			}
+			System.out.println("STEP 1 FINISHED.");			
+
+			}
+			else
+			{
+				System.out.println("step 2: ");
+				ArrayList<String> fileNames;
+				int x =0;
+				for (String subDirectory : getSubDirectory(dir))
+				{
+					fileNames = getAllFilesInDirectory(subDirectory);
+					if (fileNames.size() > 0) {
+						for (String file : fileNames) {
+							x++;
+							if(file.endsWith(".java"))
+							writeCommentsOnLinesOfFilesWithInnerElements(file, subDirectory, logFile);
+						}
+					}
+					
+				}
+
+			}
+
 			logFile.append("End: ---------------------------------------------------------" + "\n");
 			logFile.close();
 			
 			// STEP 2: run umplificator
-			System.out.println("STEP 1 FINISHED.");			
 		// Run a java app in a separate system process
 			//ProcessBuilder builder = new ProcessBuilder("java -jar /home/abdulaziz/Desktop/BerkeleyDb/umplificator.jar");		    
 			//Process process = builder.start();
 
-			if (doUmplification) {
+			
+			
+			if (false) {
 				
 				System.out.println("STEP 2: run umplificator for directory ("+dir+") ...");
 				File umpiliDir = createDirectory(dir+"/../refactor_inner/out_umplification");
@@ -268,6 +295,22 @@ public class RefactorInner {
 			else {
 				files.add(file.getAbsolutePath());
 
+			}
+		}
+
+		return files;
+	}
+	
+	
+	private static ArrayList<String> getSubDirectory(String dir) {
+
+		ArrayList<String> files = new ArrayList<>();
+		File f = new File(dir);
+		File[] allSubFiles = f.listFiles();
+
+		for (File file : allSubFiles) {
+			if (file.isDirectory()) {
+				files.add(file.getAbsolutePath());
 			}
 		}
 
