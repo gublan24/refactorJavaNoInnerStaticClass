@@ -136,11 +136,11 @@ public class RefactorInner {
 				
 				//Header to point to original file:
 				String innerClassSegment = "// Original file:"+ originalFileFullName + "\n";
-				innerClassSegment+= "// NAME_SPACE" + "\n";
+		//		innerClassSegment+= "// NAME_SPACE" + "\n";
 				// Outer class def for all inners in one file:  
 				innerClassSegment += "class "+ stripExtension(javaFileBeingRead_File.getName())+" {" + "\n";  //OuterClass name
 				boolean toWriteNewJavaFile = false;
-				String classNamespace = "";
+	//			String classNamespace = "";
 				String line = "";
 				boolean ecounterStatic = false;
 				
@@ -150,11 +150,11 @@ public class RefactorInner {
 				
 				while ((line = buffReader.readLine()) != null) 
 				{	
-					if(line.matches("package.*.;.*"))
-					{
-						classNamespace = line.replace("package", "namespace");
+			//		if(line.matches("package.*.;.*"))
+			//		{
+			//			classNamespace = line.replace("package", "namespace");
 						//System.out.println(classNamespace);
-					}	
+			//		}	
 					// detect inner class def. inner interface def.
 					boolean innerClass =line.matches("(class|.*.class) [A-Z].*") && !line.contains("class "+stripExtension(javaFileBeingRead_File.getName()).trim()+" ");
 				
@@ -191,7 +191,7 @@ public class RefactorInner {
 						newJavaFilecontent += "// START_OF_INNER_ELEMENT \n";
 						newJavaFilecontent += "// "+line + "\n";						
 						toWriteNewJavaFile = true;
-						innerClassSegment = innerClassSegment.replace("// NAME_SPACE", classNamespace);
+					//	innerClassSegment = innerClassSegment.replace("// NAME_SPACE", classNamespace);
 						innerClassSegment += "  "+ line+"\n";
 					} 
 					else if (ecounterStatic) 
