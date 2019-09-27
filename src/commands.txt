@@ -13,5 +13,8 @@ rm -r /home/abdulaziz/Desktop/BerkeleyDb/javaFiles/loggingBase_x && cp -r /home/
 ~/Desktop/BerkeleyDb/javaFiles$ java -jar ~/umple/dist/umple.jar umplific/Master.ump
 
 
+cd /home/abdulaziz/eclipse-workspace/refactorJavaNoInnerStaticClass/src/main && javac RefactorInner.java && java RefactorInner.java /home/abdulaziz/Desktop/BerkeleyDb/all_feature_try/ /home/abdulaziz/Desktop/BerkeleyDb/all_feature_try root
+
+java RefactorInner.java /home/abdulaziz/Desktop/BerkeleyDb/all_feature_try/ /home/abdulaziz/Desktop/BerkeleyDb/all_feature_try root
 
 
